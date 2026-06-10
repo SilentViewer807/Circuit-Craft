@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Circuit Craft</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="title">Circuit Craft</span>
+      <input type="text" id="projectName" value="Untitled Circuit" />
+    </div>
+
+    <div class="topbar-right">
+      <div class="dropdown">
+        <button class="btn edit-btn">
+          <img src="https://i.imgur.com/djlaEK7.png" alt="Edit Icon" class="icon"> 
+          <span class="btn-text">Edit</span>
+        </button>
+
+        <div class="dropdown-content">
+          <a href="#" id="undoBtn">Undo</a>
+          <a href="#" id="redoBtn">Redo</a>
+          <a href="#" id="clearBtn">Clear</a>
+        </div>
+      </div>
+
+      <div class="help-dropdown">
+        <button class="btn help-btn">
+          <img src="https://i.imgur.com/j0e05Tm.png" alt="Help Icon" class="icon"> 
+          <span class="btn-text">Help</span>
+        </button>
+        
+        <div class="help-content">
+          <p class="p-text help-title">Help</p>
+          <div id="originalHelpText">
+            <p class="p-text">
+              Open the bottom bar by clicking the plus(+) button.<br>
+              Drag components from the bar onto the canvas.<br>
+              Delete them by dragging them out of the canvas.<br>
+              Drag from inputs or outputs to create a wire.<br>
+              Delete wires by clicking on the wire.
+            </p>
+            <p class="p-text">
+              <em>COMPUTOR</em>:<br>
+              Use your mouse to pan and zoom on the canvas.<br>
+              Right-click a component to open its edit menu.<br>
+              Ctrl/Cmd+Z to undo.<br>
+              Ctrl/Cmd+Y to redo.
+            </p>
+            <p class="p-text">
+              <em>MOBILE</em>:<br>
+              Drag to pan and pinch to zoom.<br>
+              Long-press a component to open its edit menu.
+            </p>
+            <p class="p-text">Click the button below to check out some projects.</p>
+          </div>
+          <div id="exampleText">
+            <button class="p-text example-project">
+              <strong>Simple Circuit</strong><br>
+              Runs a voltage source through a switch, resistor, and a light bulb.
+            </button>
+            <button class="p-text example-project">
+              <strong>Pulsing LED</strong><br>
+              A button causing a pulse generator to turn the LED on and off multiple times.
+            </button>
+            <button class="p-text example-project">
+              <strong>Capacitor Charge/Discharge Bulb</strong><br>
+              Shows a capacitor acting as a temporary battery.
+            </button>
+            <button class="p-text example-project">
+              <strong>Binary Counter Display</strong><br>
+              A binary counter increments from 0 to 3 with a segment display being used.
+            </button>
+          </div>
+          <p class="example-btn">Examples</p>
+        </div>
+      </div>
+
+      <button class="btn save-btn">
+        <img src="https://i.imgur.com/dpazAza.png" alt="Save Icon" class="icon"> 
+        <span class="btn-text">Save</span>
+      </button>
+
+      <button class="btn load-btn">
+        <img src="https://i.imgur.com/9u8Y9fP.png" alt="Load Icon" class="icon"> 
+        <span class="btn-text">Load</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Canvas -->
+  <canvas id="circuitCanvas"></canvas>
+
+  <!-- Canvas Elements Dropdown -->
+  <div id="elementContextMenu" class="element-context-menu">
+    <a href="#" id="contextDelete">Delete</a>
+    <a href="#" id="contextDuplicate">Duplicate</a>
+    <a href="#" id="contextRotate">Rotate</a>
+    <div class="menu-divider"></div>
+    <div class="toggle-item">
+      <span>Show Text?</span>
+      <div id="contextShowText" class="toggle-switch"></div>
+    </div>
+    <a href="#" id="contextEditText">Edit Text</a>
+  </div>
+
+  <!-- Overlay Canvas -->
+  <canvas id="overlayCanvas"></canvas>
+
+  <!-- Bottom Bar -->
+  <div class="bottom-left">
+    <button id="startBtn" class="control-btn">
+      <img src="https://i.imgur.com/NCskRsS.png" alt="Start Icon" class="icon" width="16"/>
+    </button>
+    <button id="stopBtn" class="control-btn active">
+      <img src="https://i.imgur.com/dVV8FcM.png" alt="Stop Icon" class="icon" width="14"/>
+    </button>
+    <button id="pauseBtn" class="control-btn">
+      <img src="https://i.imgur.com/d64IxPN.png" alt="Pause Icon" class="icon" width="14"/>
+    </button>
+  </div>
+
+  <div class="bottom-right">
+    <button id="plusBtn" class="plus-btn">+</button>
+  </div>
+
+  <!-- Slide Bar -->
+  <div class="slide-bar-container">
+    <div id="slideBar" class="slide-bar">
+      <div class="section">
+        <div class="section-header">
+          <hr class="section-line"><p class="section-p">Sources</p><hr class="section-line">
+        </div>
+        <div class="components">
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Voltage Source</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Provides a constant voltage between two points in your circuit.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Current Source</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Provides a constant current flow regardless of load.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">AC Voltage Source</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Works like a voltage source, but alternates flow at a set interval in a sine wave.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">AC Current Source</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Works like a current source, but alternates flow at a set interval in a sine wave.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Ground</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Ground acts as a simplified, movable end for your circuit.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header">
+          <hr class="section-line"><p class="section-p">Signal Control</p><hr class="section-line">
+        </div>
+        <div class="components">
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Switch</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Opens or closes a connection when clicked to control current flow.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Button</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Temporarily connects a circuit while being pressed, then releases.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Clock Generator</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Sends repeating on/off signals with a set interval for both on and off.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Pulse Generator</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Works like a Clock Generator but can fire a number of pulses.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Transistor</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Allows current from one or both inputs to flow if the top input has enough voltage.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Diode</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Allows current to flow in one direction only.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header">
+          <hr class="section-line"><p class="section-p">Passive Control</p><hr class="section-line">
+        </div>
+        <div class="components">
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Resistor</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Limits the amount of current flowing through a circuit.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Fuse</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Breaks the circuit if too much current flows, protecting components.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Capacitor</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Stores and releases electrical energy when needed.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Inductor</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Stores energy in a magnetic field when current passes through.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header">
+          <hr class="section-line"><p class="section-p">Output</p><hr class="section-line">
+        </div>
+        <div class="components">
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">LED</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Emits light when current flows through it; it is efficient and bright.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Light Bulb</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Glows by heating a filament; it turns on and off more gradually.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Buzzer</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Makes a sound when powered; its useful for alerts.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Segment Display</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Shows numbers using 7 segments and 1 decimal point input.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header">
+          <hr class="section-line"><p class="section-p">Gates</p><hr class="section-line">
+        </div>
+        <div class="components">
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Merger</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Combines multiple currents into 1 path.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Splitter</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Splits a current into multiple paths.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">And</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Flows only if all inputs are on.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Or</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Flows if at least one input is on.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Nand</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Opposite of AND. Flows if at least 1 input is off. Needs a set output power.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Nor</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Opposite of OR. Flows only if all inputs are off. Needs a set output power.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Xor</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Flows if an odd number of inputs are on.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Xnor</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Opposite of XOR. Flows if an even number of inputs are on. Needs a set output power.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Not</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Outputs the opposite of the input signal. Needs a set output power.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header">
+          <hr class="section-line"><p class="section-p">Advanced</p><hr class="section-line">
+        </div>
+        <div class="components">
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">D Flip-Flop</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Only sets the output to the first input if the top input(clock) is pulsed on.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">T Flip-Flop</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Toggles if the first input is on and the top input(clock) is pulsed on. Needs a set output power.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">SR Flip-Flop</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Works like an SR Latch but only changes when the top input(clock) is pulsed on. Needs a set output power.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">JK Flip-Flop</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Works like an SR Flip-Flop but allows both inputs on at the same time, which makes the output toggle. Needs a set output power.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">SR Latch</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>The first input sets output to on, the second one resets output to off. Don't input both signals. Needs a set output power.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Binary Counter</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Has an input(clock) that increments a binary output. Needs a set output power.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Mux</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Sends one of many inputs to the output based on the top select signal.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Demux</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Sends the input to one of many outputs based on the top select signal.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Encoder</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Turns an input into a binary number output.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Decoder</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Turns binary input into an output. Needs a set output power. Can be used on the Binary Counter.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Display Decoder</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Turns binary input into a number display output with the fifth input being for the decimal. Needs a set output power. Can be used for the Segment Display.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header">
+          <hr class="section-line"><p class="section-p">Annotation</p><hr class="section-line">
+        </div>
+        <div class="components">
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Text</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Adds labels or notes to explain your circuit. The point can be used to move it.</p>
+              </div>
+            </div>
+          </div>
+          <div class="piece">
+            <canvas class="piece-canvas"></canvas>
+            <div class="piece-extra">
+              <span class="piece-text">Arrow</span>
+              <button class="piece-info">?</button>
+              <div class="piece-help-content">
+                <p>Draws arrows to point out parts of your circuit. The starting point and the arrowhead can both be moved.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p class="notice">© 2025-2026 Philip Taylor</p>
+    <p class="note">
+      Made with
+      <span aria-hidden="true"> ♥ </span>
+      <span class="sr-only"> love </span>
+      using React JS
+    </p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
