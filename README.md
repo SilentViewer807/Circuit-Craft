@@ -4,7 +4,7 @@ Built with HTML, CSS, and JavaScript.
 
 ## Quick View
 
-[View Circuit Craft On Vercel](https://docs.github.com)
+[View Circuit Craft On Vercel](https://circuit-craft-rust.vercel.app)
 
 ## Features
 
