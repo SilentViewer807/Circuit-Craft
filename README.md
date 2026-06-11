@@ -13,7 +13,6 @@ Built with HTML, CSS, and JavaScript.
 - Wire connection handling
 - Help section
 - Saving and loading
-- Screen reader accessibility
 
 ## Lessons Learned
 
