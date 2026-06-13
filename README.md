@@ -29,15 +29,19 @@ Built with HTML, CSS, and JavaScript.
    ```bash
    git clone https://github.com/SilentViewer807/Circuit-Craft.git
    ```
-2. Install dependencies:
+2. Navigate to the project directory:
+   ```bash
+   cd Portfolio
+   ```
+3. Install dependencies:
    ```bash
    npm install
    ```
-3. Build the static site files:
+4. Build the static site files:
    ```bash
    npm run build
    ```
-4. Run the static server
+5. Run the static server
    ```bash
    npm run preview
    ```
