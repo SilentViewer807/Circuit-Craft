@@ -37,13 +37,9 @@ Built with HTML, CSS, and JavaScript.
    ```bash
    npm install
    ```
-4. Build the static site files:
+4. Run the static server
    ```bash
-   npm run build
-   ```
-5. Run the static server
-   ```bash
-   npm run preview
+   npm start
    ```
 
 ## License
