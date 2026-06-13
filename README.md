@@ -31,7 +31,7 @@ Built with HTML, CSS, and JavaScript.
    ```
 2. Navigate to the project directory:
    ```bash
-   cd Portfolio
+   cd Circuit-Craft
    ```
 3. Install dependencies:
    ```bash
